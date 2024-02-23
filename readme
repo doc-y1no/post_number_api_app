@@ -1,0 +1,102 @@
+・郵便番号APIを利用して、郵便番号を入力したら、住所を返すメソッド作成
+http://zipcloud.ibsnet.co.jp/doc/api
+
+**（例）郵便番号「7830060」で検索する場合**
+
+https://zipcloud.ibsnet.co.jp/api/search?zipcode=7830060
+
+？以降「クエリパラメータ」という
+
+zipcode=ここに郵便番号が入ると住所が返ってくる。
+
+zipcodeメソッドに郵便番号突っ込むと住所が返ってくる。
+
+実行したら住所が返ってくるメソッド
+
+POST_API = "https://zipcloud.ibsnet.co.jp/api/search?zipcode="
+POST_API + get_chomp（ユーザが入力した郵便番号）
+URLを送信する。
+結果のjsonを受け取る
+jsonを見やすくして、結果画面に必要な情報を返す。
+
+調べる必要がありそう。
+URLを送信するメソッドがあるか。作成するか
+まずは、郵便番号のページを読み込む
+railsならできるか。
+
+送信して、jsonを受信できれば結果を返すのは簡単そう
+callback	コールバック関数名	-	JSONPとして出力する際のコールバック関数名。UTF-8でURLエンコードした文字列。
+limit	最大件数	-	同一の郵便番号で複数件のデータが存在する場合に返される件数の上限値（数字）　※デフォルト：20
+
+受け取るのはparamsで受け取る
+
+rubyでhttpリクエスト行う方法
+https://www.twilio.com/ja-jp/blog/5-ways-make-http-requests-ruby-jp
+
+require 'uri'
+require 'net/http'
+
+uri = URI('https://api.nasa.gov/planetary/apod?api_key=DEMO_KEY')
+res = Net::HTTP.get_response(uri)
+puts res.body if res.is_a?(Net::HTTPSuccess)
+
+こっちのほうがネットにアクセスするコマンドがわかりやすそう
+https://docs.ruby-lang.org/ja/latest/library/net=2fhttp.html
+
+URiを使う
+require 'net/http'
+require 'uri'
+print Net::HTTP.get(URI.parse('http://www.example.com/index.html'))
+
+フォームの情報を送信する (POST)
+例
+
+require 'net/http'
+require 'uri'
+
+#例1: POSTするだけ
+res = Net::HTTP.post_form(URI.parse('http://www.example.com/search'),
+                          {'q'=>'ruby', 'max'=>'50'})
+puts res.body
+
+#例2: 認証付きで POST する
+res = Net::HTTP.post_form(URI.parse('http://jack:pass@www.example.com/todo.cgi'),
+                          {'from'=>'2005-01-01', 'to'=>'2005-03-31'})
+puts res.body
+
+#例3: より細かく制御する
+url = URI.parse('http://www.example.com/todo.cgi')
+req = Net::HTTP::Post.new(url.path)
+req.basic_auth 'jack', 'pass'
+req.set_form_data({'from'=>'2005-01-01', 'to'=>'2005-03-31'})
+res = Net::HTTP.new(url.host, url.port).start {|http| http.request(req) }
+case res
+when Net::HTTPSuccess, Net::HTTPRedirection
+  # OK
+else
+  res.value
+end
+
+
+受け取ったjsonをRUbyであつかう
+https://pikawaka.com/ruby/json
+
+正規表現のサンプルサイト
+https://www.megasoft.co.jp/mifes/seiki/
+
+https://tokitsubaki.com/ruby-json-manipulation/407/
+
+ハッシュとarrayで値を取り出す方法
+
+                ^
+[63] pry(main)> data["results"][0]
+=> {"address1"=>"東京都",
+ "address2"=>"板橋区",
+ "address3"=>"舟渡",
+ "kana1"=>"ﾄｳｷｮｳﾄ",
+ "kana2"=>"ｲﾀﾊﾞｼｸ",
+ "kana3"=>"ﾌﾅﾄﾞ",
+ "prefcode"=>"13",
+ "zipcode"=>"1740041"}
+[64] pry(main)> data["results"][0]['address1']
+=> "東京都"
